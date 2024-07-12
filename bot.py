@@ -1,9 +1,20 @@
-# bot.py
+import asyncio
 from telegram import Bot, Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
 from products import list_products, add_product
 
-bot_token = 'YOUR_TELEGRAM_BOT_TOKEN'
+# Load token from environment variable
+from dotenv import load_dotenv
+import os
+
+load_dotenv('.env')
+
+bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+if not bot_token:
+    raise ValueError("No bot token found in configuration file.")
+# Use bot_token to set up your bot
+print("Bot token is set up successfully!")
+
 bot = Bot(token=bot_token)
 
 def start(update: Update, context: CallbackContext):
@@ -22,7 +33,9 @@ def add_product_command(update: Update, context: CallbackContext):
     except (IndexError, ValueError):
         update.message.reply_text("Usage: /addproduct <name> <price>")
 
-updater = Updater(token=bot_token, use_context=True)
+# Create an asyncio.Queue instance for the update_queue
+update_queue = asyncio.Queue()
+updater = Updater(bot_token,update_queue)
 dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler('start', start))
