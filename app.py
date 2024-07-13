@@ -1,4 +1,4 @@
-# app.py
+import os
 from flask import Flask, jsonify, request, send_from_directory, redirect
 from products import add_product, list_products, edit_product, delete_product
 import logging
@@ -44,4 +44,7 @@ def remove_product(index):
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if os.environ.get('FLASK_ENV') == 'production':
+        pass
+    else:
+        app.run(debug=True)
