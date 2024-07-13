@@ -1,8 +1,26 @@
 # app.py
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, redirect
 from products import add_product, list_products, edit_product, delete_product
+import logging
 
-app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
+app = Flask(__name__,static_folder='static')
+
+@app.before_request
+def log_request_info():
+    app.logger.debug('Headers: %s', request.headers)
+    app.logger.debug('Body: %s', request.get_data())
+
+@app.before_request
+def before_request():
+    if not request.is_secure:
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
+
+
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/products', methods=['GET'])
 def get_products():
